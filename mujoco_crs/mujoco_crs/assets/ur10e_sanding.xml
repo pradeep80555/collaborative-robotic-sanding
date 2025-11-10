@@ -16,8 +16,12 @@
     <texture name="grid" type="2d" builtin="checker" width="1024" height="1024" rgb1="0.9 0.9 0.9" rgb2="0.75 0.75 0.75"/>
     <material name="ground" texture="grid" texrepeat="6 6" texuniform="true" reflectance="0.2"/>
     <material name="robot" rgba="0.86 0.86 0.88 1.0"/>
-    <material name="tool" rgba="0.8 0.2 0.2 1.0"/>
-    <material name="fixture" rgba="0.65 0.5 0.4 1.0"/>
+    <material name="tool" rgba="0.7 0.2 0.15 1.0"/>
+    <material name="fixture_frame" rgba="0.6 0.6 0.6 1.0"/>
+    <material name="workpiece" rgba="0.85 0.85 0.9 1.0"/>
+    <mesh name="sander_mesh" file="sander_tool.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="cart_mesh" file="workbench.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_mesh" file="workpiece_part.stl" scale="0.001 0.001 0.001"/>
   </asset>
 
   <worldbody>
@@ -58,9 +62,9 @@
                   <geom type="capsule" fromto="0 0 0 0 0 0.0922" size="0.035" material="robot"/>
 
                   <body name="sander_tool" pos="0 0 0.0922">
-                    <geom type="cylinder" size="0.06 0.02" material="tool"/>
-                    <site name="sander_contact" pos="0 0 -0.02"/>
-                    <site name="sander_tip" pos="0 0 -0.02" size="0.008" rgba="0.1 0.9 0.1 1"/>
+                    <geom type="mesh" mesh="sander_mesh" material="tool" quat="0.7071068 0.7071068 0 0" pos="0 0 -0.08"/>
+                    <site name="sander_contact" pos="0 0 -0.105"/>
+                    <site name="sander_tip" pos="0 0 -0.105" size="0.008" rgba="0.1 0.9 0.1 1"/>
                   </body>
                 </body>
               </body>
@@ -70,9 +74,12 @@
       </body>
     </body>
 
-    <body name="workbench" pos="0.0 -0.4 0.75">
-      <geom type="box" size="0.6 0.4 0.02" material="fixture"/>
-      <site name="work_surface" pos="0 0 0.02" size="0.05" rgba="0.9 0.3 0.1 0.3"/>
+    <body name="workbench" pos="0.0 -0.4 0.6" quat="0.7071068 0.7071068 0 0">
+      <geom type="mesh" mesh="cart_mesh" material="fixture_frame"/>
+      <body name="workpiece" pos="0.0 0.35 0.17" quat="0.7071068 0.7071068 0 0">
+        <geom type="mesh" mesh="part_mesh" material="workpiece"/>
+        <site name="work_surface" pos="0 0 0.03" size="0.05" rgba="0.9 0.3 0.1 0.3"/>
+      </body>
     </body>
   </worldbody>
 

@@ -7,7 +7,10 @@ pyproject.toml
 ./mujoco_crs/run.py
 ./mujoco_crs/simulation.py
 ./mujoco_crs/toolpath.py
+./mujoco_crs/assets/sander_tool.stl
 ./mujoco_crs/assets/ur10e_sanding.xml
+./mujoco_crs/assets/workbench.stl
+./mujoco_crs/assets/workpiece_part.stl
 mujoco_crs/__init__.py
 mujoco_crs/config.py
 mujoco_crs/controller.py
@@ -21,4 +24,7 @@ mujoco_crs.egg-info/dependency_links.txt
 mujoco_crs.egg-info/entry_points.txt
 mujoco_crs.egg-info/requires.txt
 mujoco_crs.egg-info/top_level.txt
+mujoco_crs/assets/sander_tool.stl
 mujoco_crs/assets/ur10e_sanding.xml
+mujoco_crs/assets/workbench.stl
+mujoco_crs/assets/workpiece_part.stl

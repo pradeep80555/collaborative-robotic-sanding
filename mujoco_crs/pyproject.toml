@@ -25,5 +25,5 @@ package-dir = {"" = "."}
 packages = ["mujoco_crs"]
 
 [tool.setuptools.package-data]
-"mujoco_crs" = ["assets/*.xml", "docs/*.md"]
+"mujoco_crs" = ["assets/*.xml", "assets/*.stl", "docs/*.md"]
 
