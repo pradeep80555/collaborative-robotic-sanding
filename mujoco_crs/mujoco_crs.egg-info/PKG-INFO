@@ -1,0 +1,71 @@
+Metadata-Version: 2.4
+Name: mujoco-crs
+Version: 0.1.0
+Summary: Mujoco-based collaborative sanding simulation rebuilt from the CRS project
+Author: CRS Mujoco Conversion
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: mujoco>=3.0.0
+Requires-Dist: numpy>=1.26
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: scipy>=1.11
+Requires-Dist: tyro>=0.7.0
+
+# Mujoco Collaborative Sanding
+
+This package provides a Python-only Mujoco simulation that recreates the collaborative robotic sanding workflow from the legacy CRS project without any ROS or hardware dependencies.  It offers:
+
+- a lightweight UR-style 6-DOF arm model with a sanding tool
+- tooling and fixtures approximating the original Gazebo scene
+- parsing utilities for legacy CRS Cartesian toolpaths (YAML)
+- damped-least-squares inverse kinematics for following toolpaths
+- an executable demo that replays process paths with live Mujoco visualisation
+
+The original C++/ROS2 sources remain untouched.  All new code lives in this `mujoco_crs` directory so you can iterate on the Mujoco stack independently.
+
+## Quick Start
+
+1. **Install/upgrade Mujoco Python package** – ensures the bindings and native libraries are available to the simulator.
+   ```bash
+   python3 -m pip install --upgrade mujoco
+   ```
+   (Optional) Grab the standalone tools from [mujoco.org](https://mujoco.org/) if you rely on the official `simulate` GUI.
+
+2. **Create and activate a virtual environment** – keeps dependencies isolated from the rest of your system.
+   ```bash
+   cd /Users/pradeep/Downloads/Algorthimic\ HRI/Final_project_code/collaborative-robotic-sanding/mujoco_crs   # move into this package
+   python3 -m venv .venv                                                                                     # create venv alongside the source
+   source .venv/bin/activate                                                                                 # activate the venv
+   pip install --upgrade pip                                                                                 # update packaging tools
+   pip install -e .                                                                                          # install mujoco_crs in editable mode
+   ```
+
+3. **Run the demo** – launches Mujoco, generates a default rectangular toolpath, and plays it in the viewer.
+   - **macOS with viewer:** the interactive viewer must run under MuJoCo’s `mjpython` interpreter.
+     ```bash
+     /Applications/MuJoCo.app/Contents/MacOS/mjpython -m mujoco_crs.run --viewer
+     ```
+   - **Other platforms / headless:** the standard entry point works as expected.
+     ```bash
+     mujoco-crs-demo --viewer     # Linux/Windows interactive
+     mujoco-crs-demo              # headless on any platform
+     ```
+   The viewer opens with the arm already tracking a flat-panel sanding pattern.
+
+4. **Use legacy CRS toolpaths**
+   ```bash
+   # macOS viewer
+   /Applications/MuJoCo.app/Contents/MacOS/mjpython -m mujoco_crs.run \
+     --toolpath /Users/pradeep/Downloads/Algorthimic\ HRI/Final_project_code/collaborative-robotic-sanding/crs_process_data/data/main/toolpaths/part_2/job_0_degrees_20200520T192241.997282.yaml \
+     --viewer
+
+   # Linux/Windows viewer (or any headless run)
+   mujoco-crs-demo \
+     --toolpath /Users/pradeep/Downloads/Algorthimic\ HRI/Final_project_code/collaborative-robotic-sanding/crs_process_data/data/main/toolpaths/part_2/job_0_degrees_20200520T192241.997282.yaml \
+     --viewer
+   ```
+
+   Add `--part-config` to point at the matching `crs.yaml` if you want the original part placement.
+
+See `docs/SETUP_GUIDE.md` for full installation notes and simulation workflow.
+

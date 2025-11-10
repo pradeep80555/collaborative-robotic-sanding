@@ -1,0 +1,2 @@
+[console_scripts]
+mujoco-crs-demo = mujoco_crs.run:main

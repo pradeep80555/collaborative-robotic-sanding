@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mujoco-crs"
+version = "0.1.0"
+description = "Mujoco-based collaborative sanding simulation rebuilt from the CRS project"
+authors = [{ name = "CRS Mujoco Conversion" }]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mujoco>=3.0.0",
+    "numpy>=1.26",
+    "pyyaml>=6.0",
+    "scipy>=1.11",
+    "tyro>=0.7.0"
+]
+
+[project.scripts]
+mujoco-crs-demo = "mujoco_crs.run:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+packages = ["mujoco_crs"]
+
+[tool.setuptools.package-data]
+"mujoco_crs" = ["assets/*.xml", "docs/*.md"]
+

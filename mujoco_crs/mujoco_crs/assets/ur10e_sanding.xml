@@ -1,0 +1,88 @@
+<mujoco model="crs_mujoco">
+  <compiler coordinate="local" angle="radian"/>
+  <option integrator="RK4" timestep="0.002" cone="elliptic" gravity="0 0 -9.81"/>
+
+  <size nstack="300000" njmax="2000" nconmax="200"/>
+
+  <default>
+    <geom rgba="0.8 0.85 0.9 1.0" friction="1.0 0.05 0.01" condim="4" solimp="0.9 0.95 0.001" solref="0.003 1"/>
+    <joint damping="2" armature="0.02" stiffness="0"/>
+    <motor ctrlrange="-6.283 6.283" />
+    <site size="0.01" rgba="0.1 0.7 0.2 1"/>
+  </default>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" width="512" height="512" rgb1="0.8 0.9 1" rgb2="0.1 0.3 0.5"/>
+    <texture name="grid" type="2d" builtin="checker" width="1024" height="1024" rgb1="0.9 0.9 0.9" rgb2="0.75 0.75 0.75"/>
+    <material name="ground" texture="grid" texrepeat="6 6" texuniform="true" reflectance="0.2"/>
+    <material name="robot" rgba="0.86 0.86 0.88 1.0"/>
+    <material name="tool" rgba="0.8 0.2 0.2 1.0"/>
+    <material name="fixture" rgba="0.65 0.5 0.4 1.0"/>
+  </asset>
+
+  <worldbody>
+    <light name="sun" pos="0 0 5" dir="0 0 -1"/>
+    <geom name="floor" type="plane" size="5 5 0.1" material="ground"/>
+
+    <body name="robot_base" pos="0 0 0">
+      <geom type="cylinder" size="0.12 0.04" pos="0 0 0.02" material="robot"/>
+
+      <!-- Joint 1 -->
+      <body name="shoulder_link" pos="0 0 0.1273">
+        <joint name="shoulder_pan_joint" type="hinge" axis="0 0 1" range="-6.283 6.283"/>
+        <geom type="capsule" fromto="0 0 0 0 0 0.2" size="0.06" material="robot"/>
+
+        <!-- Joint 2 -->
+        <body name="upper_arm_link" pos="0 0 0">
+          <joint name="shoulder_lift_joint" type="hinge" axis="0 1 0" range="-6.283 6.283"/>
+          <geom type="capsule" fromto="0 0 0 0 0.0 0.612" size="0.05" material="robot"/>
+
+          <!-- Joint 3 -->
+          <body name="forearm_link" pos="0 0 0.612">
+            <joint name="elbow_joint" type="hinge" axis="0 1 0" range="-6.283 6.283"/>
+            <geom type="capsule" fromto="0 0 0 0 0 0.5723" size="0.045" material="robot"/>
+
+            <!-- Joint 4 -->
+            <body name="wrist_1_link" pos="0 0 0.5723">
+              <joint name="wrist_1_joint" type="hinge" axis="0 0 1" range="-6.283 6.283"/>
+              <geom type="capsule" fromto="0 0 0 0 0 0.163941" size="0.04" material="robot"/>
+
+              <!-- Joint 5 -->
+              <body name="wrist_2_link" pos="0 0 0.163941">
+                <joint name="wrist_2_joint" type="hinge" axis="0 1 0" range="-6.283 6.283"/>
+                <geom type="capsule" fromto="0 0 0 0 0 0.1157" size="0.04" material="robot"/>
+
+                <!-- Joint 6 -->
+                <body name="wrist_3_link" pos="0 0 0.1157">
+                  <joint name="wrist_3_joint" type="hinge" axis="0 0 1" range="-6.283 6.283"/>
+                  <geom type="capsule" fromto="0 0 0 0 0 0.0922" size="0.035" material="robot"/>
+
+                  <body name="sander_tool" pos="0 0 0.0922">
+                    <geom type="cylinder" size="0.06 0.02" material="tool"/>
+                    <site name="sander_contact" pos="0 0 -0.02"/>
+                    <site name="sander_tip" pos="0 0 -0.02" size="0.008" rgba="0.1 0.9 0.1 1"/>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    <body name="workbench" pos="0.0 -0.4 0.75">
+      <geom type="box" size="0.6 0.4 0.02" material="fixture"/>
+      <site name="work_surface" pos="0 0 0.02" size="0.05" rgba="0.9 0.3 0.1 0.3"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <position name="shoulder_pan_joint_pos" joint="shoulder_pan_joint" kp="400"/>
+    <position name="shoulder_lift_joint_pos" joint="shoulder_lift_joint" kp="400"/>
+    <position name="elbow_joint_pos" joint="elbow_joint" kp="350"/>
+    <position name="wrist_1_joint_pos" joint="wrist_1_joint" kp="250"/>
+    <position name="wrist_2_joint_pos" joint="wrist_2_joint" kp="200"/>
+    <position name="wrist_3_joint_pos" joint="wrist_3_joint" kp="150"/>
+  </actuator>
+</mujoco>
+
