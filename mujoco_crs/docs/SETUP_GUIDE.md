@@ -84,6 +84,7 @@ Viewer controls:
 Reuse any of the CRS YAML toolpaths directly:
 
 ```bash
+
 # macOS interactive
 /Applications/MuJoCo.app/Contents/MacOS/mjpython -m mujoco_crs.run \
   --toolpath /Users/pradeep/Downloads/Algorthimic\ HRI/Final_project_code/collaborative-robotic-sanding/crs_process_data/data/main/toolpaths/part_2/job_0_degrees_20200520T192241.997282.yaml \
