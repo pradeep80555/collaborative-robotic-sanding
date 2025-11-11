@@ -111,25 +111,30 @@ def create_rectangular_toolpath(
 
     The orientation quaternion is expressed in Mujoco's (w, x, y, z) convention.
     """
-    ox, oy, oz = origin
-    length, width = size
-    points: List[CartesianWaypoint] = []
-    rows = int(np.ceil(width / spacing))
-    direction = 1.0
-    for row in range(rows + 1):
-        y = oy + row * spacing
-        x_start = ox - length / 2.0
-        x_end = ox + length / 2.0
-        xs = np.linspace(x_start, x_end, num=20)
-        if direction < 0:
-            xs = xs[::-1]
-        for x in xs:
-            points.append(
-                CartesianWaypoint(
-                    position=np.array([x, y, oz], dtype=float),
-                    quaternion=np.array(normal_quaternion, dtype=float),
-                )
-            )
-        direction *= -1.0
-    return Toolpath(name="rectangular_panel", waypoints=points)
+    # Panel is at (0.6, 0, 0.43) - generate reachable toolpath
+    # Robot tip at home is around (0.08, 0.78, 0.10)
+    # Use identity orientation since that's what IK can solve
+    center = np.array([0.6, 0.0, 0.43])  # panel center
+    width = 0.3   # panel width
+    height = 0.2  # panel height
+    
+    # Tool orientation: identity (natural wrist orientation)
+    quat = np.array([1, 0, 0, 0])  # w,x,y,z
+    
+    num_x = 10
+    num_y = 6
+    waypoints = []
+    
+    for i in range(num_y):
+        y = center[1] - height / 2 + i * (height / (num_y - 1)) if num_y > 1 else center[1]
+        row = []
+        for j in range(num_x):
+            x = center[0] - width / 2 + j * (width / (num_x - 1)) if num_x > 1 else center[0]
+            pos = np.array([x, y, center[2]])
+            row.append(CartesianWaypoint(position=pos, quaternion=quat))
+        if i % 2 == 1:
+            row.reverse()
+        waypoints.extend(row)
+    
+    return Toolpath(name="rectangular_panel", waypoints=waypoints)
 

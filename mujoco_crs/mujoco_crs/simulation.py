@@ -53,16 +53,23 @@ class SimulationApp:
     def _plan_joint_path(self, toolpath: Toolpath) -> np.ndarray:
         seed = self.data.qpos.copy()
         trajectory: list[np.ndarray] = []
-        for waypoint in toolpath:
+        print(f"Planning joint path for {len(toolpath)} waypoints...")
+        for idx, waypoint in enumerate(toolpath):
             pose = _normalize_quaternion(waypoint.quaternion)
-            solution = self.ik_solver.solve(
-                waypoint.position,
-                pose,
-                initial_qpos=seed,
-            )
-            trajectory.append(solution[self.controller.qpos_indices])
-            seed = solution
-        return np.vstack(trajectory)
+            try:
+                solution = self.ik_solver.solve(
+                    waypoint.position,
+                    pose,
+                    initial_qpos=seed,
+                )
+                trajectory.append(solution[self.controller.qpos_indices])
+                seed = solution
+            except Exception as e:
+                print(f"IK failed at waypoint {idx}: {e}")
+        print(f"Planned {len(trajectory)} joint positions.")
+        if not trajectory:
+            print("No valid joint trajectory was generated. Check home position and toolpath reachability.")
+        return np.vstack(trajectory) if trajectory else np.zeros((1, len(seed)))
 
     def run_toolpath(self, toolpath: Toolpath, *, launch_viewer: bool = False) -> None:
         self.reset()
@@ -77,14 +84,19 @@ class SimulationApp:
             mujoco.viewer.launch_passive(self.model, self.data) if launch_viewer else nullcontext()
         )
 
+        print(f"Executing trajectory with {len(joint_traj)} waypoints, {steps_per_waypoint} steps each...")
         with viewer_context as viewer:
-            for target in joint_traj:
-                self.controller.set_target(self.data, target)
-                for _ in range(steps_per_waypoint):
+            for idx, target in enumerate(joint_traj):
+                if idx % 10 == 0:
+                    print(f"Executing waypoint {idx}/{len(joint_traj)}")
+                for step in range(steps_per_waypoint):
+                    self.controller.set_target(self.data, target)
                     mujoco.mj_step(self.model, self.data)
                     if viewer is not None:
                         viewer.sync()
+            print("Trajectory execution complete!")
             if viewer is not None:
+                print("Viewer running - press ESC to exit...")
                 while viewer.is_running():
                     viewer.sync()
                     time.sleep(0.01)

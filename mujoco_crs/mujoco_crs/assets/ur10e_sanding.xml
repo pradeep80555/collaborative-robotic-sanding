@@ -1,12 +1,12 @@
 <mujoco model="crs_mujoco">
   <compiler coordinate="local" angle="radian"/>
-  <option integrator="RK4" timestep="0.002" cone="elliptic" gravity="0 0 -9.81"/>
+  <option integrator="implicitfast" timestep="0.002" cone="elliptic" gravity="0 0 -9.81"/>
 
   <size nstack="300000" njmax="2000" nconmax="200"/>
 
   <default>
     <geom rgba="0.8 0.85 0.9 1.0" friction="1.0 0.05 0.01" condim="4" solimp="0.9 0.95 0.001" solref="0.003 1"/>
-    <joint damping="2" armature="0.02" stiffness="0"/>
+    <joint damping="5" armature="0.1" stiffness="0"/>
     <motor ctrlrange="-6.283 6.283" />
     <site size="0.01" rgba="0.1 0.7 0.2 1"/>
   </default>
@@ -28,43 +28,46 @@
     <light name="sun" pos="0 0 5" dir="0 0 -1"/>
     <geom name="floor" type="plane" size="5 5 0.1" material="ground"/>
 
+    <!-- UR10e Robot - Proper kinematic structure -->
     <body name="robot_base" pos="0 0 0">
-      <geom type="cylinder" size="0.12 0.04" pos="0 0 0.02" material="robot"/>
+      <geom type="cylinder" size="0.09 0.065" pos="0 0 0.065" material="robot"/>
 
-      <!-- Joint 1 -->
+      <!-- Joint 1: Shoulder Pan (rotates around Z) -->
       <body name="shoulder_link" pos="0 0 0.1273">
-        <joint name="shoulder_pan_joint" type="hinge" axis="0 0 1" range="-6.283 6.283"/>
-        <geom type="capsule" fromto="0 0 0 0 0 0.2" size="0.06" material="robot"/>
+        <joint name="shoulder_pan_joint" type="hinge" axis="0 0 1" range="-6.283 6.283" damping="5"/>
+        <geom type="cylinder" size="0.09 0.065" pos="0 0 0" material="robot"/>
 
-        <!-- Joint 2 -->
-        <body name="upper_arm_link" pos="0 0 0">
-          <joint name="shoulder_lift_joint" type="hinge" axis="0 1 0" range="-6.283 6.283"/>
-          <geom type="capsule" fromto="0 0 0 0 0.0 0.612" size="0.05" material="robot"/>
+        <!-- Joint 2: Shoulder Lift (rotates around Y, arm extends along X) -->
+        <body name="upper_arm_link" pos="0 0 0" euler="0 1.5708 0">
+          <joint name="shoulder_lift_joint" type="hinge" axis="0 0 1" range="-6.283 6.283" damping="5"/>
+          <geom type="capsule" fromto="0 0 0 0.612 0 0" size="0.055" material="robot"/>
+          <geom type="cylinder" size="0.09 0.04" pos="0 0 0" euler="1.5708 0 0" material="robot"/>
 
-          <!-- Joint 3 -->
-          <body name="forearm_link" pos="0 0 0.612">
-            <joint name="elbow_joint" type="hinge" axis="0 1 0" range="-6.283 6.283"/>
-            <geom type="capsule" fromto="0 0 0 0 0 0.5723" size="0.045" material="robot"/>
+          <!-- Joint 3: Elbow (rotates around Y, forearm extends along X) -->
+          <body name="forearm_link" pos="0.612 0 0">
+            <joint name="elbow_joint" type="hinge" axis="0 0 1" range="-6.283 6.283" damping="4"/>
+            <geom type="capsule" fromto="0 0 0 0.5723 0 0" size="0.045" material="robot"/>
 
-            <!-- Joint 4 -->
-            <body name="wrist_1_link" pos="0 0 0.5723">
-              <joint name="wrist_1_joint" type="hinge" axis="0 0 1" range="-6.283 6.283"/>
-              <geom type="capsule" fromto="0 0 0 0 0 0.163941" size="0.04" material="robot"/>
+            <!-- Joint 4: Wrist 1 (rotates around Y) -->
+            <body name="wrist_1_link" pos="0.5723 0 0" euler="0 1.5708 0">
+              <joint name="wrist_1_joint" type="hinge" axis="0 0 1" range="-6.283 6.283" damping="2"/>
+              <geom type="cylinder" size="0.045 0.06" pos="0 0 0" euler="1.5708 0 0" material="robot"/>
 
-              <!-- Joint 5 -->
-              <body name="wrist_2_link" pos="0 0 0.163941">
-                <joint name="wrist_2_joint" type="hinge" axis="0 1 0" range="-6.283 6.283"/>
-                <geom type="capsule" fromto="0 0 0 0 0 0.1157" size="0.04" material="robot"/>
+              <!-- Joint 5: Wrist 2 (rotates around Z) -->
+              <body name="wrist_2_link" pos="0 0.1157 0" euler="0 0 1.5708">
+                <joint name="wrist_2_joint" type="hinge" axis="0 0 1" range="-6.283 6.283" damping="2"/>
+                <geom type="cylinder" size="0.045 0.055" pos="0 0 0" euler="1.5708 0 0" material="robot"/>
 
-                <!-- Joint 6 -->
-                <body name="wrist_3_link" pos="0 0 0.1157">
-                  <joint name="wrist_3_joint" type="hinge" axis="0 0 1" range="-6.283 6.283"/>
-                  <geom type="capsule" fromto="0 0 0 0 0 0.0922" size="0.035" material="robot"/>
+                <!-- Joint 6: Wrist 3 (rotates around Z) -->
+                <body name="wrist_3_link" pos="0 0 0.11">
+                  <joint name="wrist_3_joint" type="hinge" axis="0 0 1" range="-6.283 6.283" damping="1"/>
+                  <geom type="cylinder" size="0.04 0.045" pos="0 0 0.045" material="robot"/>
 
-                  <body name="sander_tool" pos="0 0 0.0922">
-                    <geom type="mesh" mesh="sander_mesh" material="tool" quat="0.7071068 0.7071068 0 0" pos="0 0 -0.08"/>
-                    <site name="sander_contact" pos="0 0 -0.105"/>
-                    <site name="sander_tip" pos="0 0 -0.105" size="0.008" rgba="0.1 0.9 0.1 1"/>
+                  <!-- Sander Tool -->
+                  <body name="sander_tool" pos="0 0 0.09">
+                    <geom type="mesh" mesh="sander_mesh" material="tool" euler="-1.5708 0 0" pos="0 0 -0.05"/>
+                    <site name="sander_contact" pos="0 0 -0.12"/>
+                    <site name="sander_tip" pos="0 0 -0.12" size="0.03" rgba="1 1 0 1"/>
                   </body>
                 </body>
               </body>
@@ -74,22 +77,31 @@
       </body>
     </body>
 
-    <body name="workbench" pos="0.0 -0.4 0.6" quat="0.7071068 0.7071068 0 0">
-      <geom type="mesh" mesh="cart_mesh" material="fixture_frame"/>
-      <body name="workpiece" pos="0.0 0.35 0.17" quat="0.7071068 0.7071068 0 0">
-        <geom type="mesh" mesh="part_mesh" material="workpiece"/>
-        <site name="work_surface" pos="0 0 0.03" size="0.05" rgba="0.9 0.3 0.1 0.3"/>
+    <!-- Workbench and Panel - positioned where robot actually reaches -->
+    <body name="workbench" pos="-0.63 0.03 0.41">
+      <geom type="box" size="0.4 0.3 0.02" pos="0 0 0" material="fixture_frame"/>
+      
+      <!-- Workpiece Panel - positioned for robot to reach -->
+      <body name="workpiece" pos="0 0 0.03">
+        <geom type="box" size="0.3 0.2 0.01" material="workpiece"/>
+        <site name="work_surface" pos="0 0 0.02" size="0.05" rgba="0.9 0.3 0.1 0.8"/>
+        <!-- Visual markers to show sanding area -->
+        <site name="panel_center" pos="0 0 0.02" size="0.03" rgba="1 0 0 1"/>
+        <site name="panel_corner1" pos="-0.3 -0.2 0.02" size="0.02" rgba="0 1 0 1"/>
+        <site name="panel_corner2" pos="0.3 -0.2 0.02" size="0.02" rgba="0 1 0 1"/>
+        <site name="panel_corner3" pos="0.3 0.2 0.02" size="0.02" rgba="0 1 0 1"/>
+        <site name="panel_corner4" pos="-0.3 0.2 0.02" size="0.02" rgba="0 1 0 1"/>
       </body>
     </body>
   </worldbody>
 
   <actuator>
-    <position name="shoulder_pan_joint_pos" joint="shoulder_pan_joint" kp="400"/>
-    <position name="shoulder_lift_joint_pos" joint="shoulder_lift_joint" kp="400"/>
-    <position name="elbow_joint_pos" joint="elbow_joint" kp="350"/>
-    <position name="wrist_1_joint_pos" joint="wrist_1_joint" kp="250"/>
-    <position name="wrist_2_joint_pos" joint="wrist_2_joint" kp="200"/>
-    <position name="wrist_3_joint_pos" joint="wrist_3_joint" kp="150"/>
+    <position name="shoulder_pan_joint_pos" joint="shoulder_pan_joint" kp="2000" kv="100"/>
+    <position name="shoulder_lift_joint_pos" joint="shoulder_lift_joint" kp="2000" kv="100"/>
+    <position name="elbow_joint_pos" joint="elbow_joint" kp="1500" kv="80"/>
+    <position name="wrist_1_joint_pos" joint="wrist_1_joint" kp="500" kv="50"/>
+    <position name="wrist_2_joint_pos" joint="wrist_2_joint" kp="500" kv="50"/>
+    <position name="wrist_3_joint_pos" joint="wrist_3_joint" kp="300" kv="30"/>
   </actuator>
 </mujoco>
 
